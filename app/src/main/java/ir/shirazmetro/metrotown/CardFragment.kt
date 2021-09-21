@@ -1,10 +1,16 @@
 package ir.shirazmetro.metrotown
 
+import VocabDatabaseHelper
+import android.database.Cursor
+import android.database.sqlite.SQLiteException
+import android.database.sqlite.SQLiteOpenHelper
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -27,6 +33,51 @@ class CardFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        //Create a cursor
+        var vocabDatabaseHelper: SQLiteOpenHelper = VocabDatabaseHelper(activity)
+        try {
+            var db = vocabDatabaseHelper.readableDatabase
+            val cursor: Cursor = db.query(
+                "TBL_VOCAB",
+                arrayOf("_id"),
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+
+            var vocabArray = mutableListOf<Int>()
+            if (cursor.moveToFirst()) {
+                vocabArray.add(cursor.getInt(0)) // _id
+                while (cursor.moveToNext()) {
+                    vocabArray.add(cursor.getInt(0)) // _id
+                }
+            }
+
+            cursor.close()
+            db.close()
+
+
+            val toast: Toast = Toast.makeText(
+                activity, vocabArray.size.toString(), Toast.LENGTH_SHORT
+            )
+            toast.show()
+            /*
+                * Cursor cursor = db.query("DRINK",
+                * arrayOf("_id", "vocab", "role", "phonemic", "similar", "meaning", "description"),
+                * "_id = ?",new String[] {Integer.toString(1)}, //Convert the int 1 to a String value
+                * null, null, null);
+                * */
+
+        } catch (ex: SQLiteException) {
+            val toast: Toast = Toast.makeText(
+                activity, "Database unavailable", Toast.LENGTH_SHORT
+            )
+            toast.show()
+        }
+
     }
 
     override fun onCreateView(
